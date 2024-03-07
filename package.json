@@ -1,0 +1,33 @@
+{
+  "name": "rocketseatgympass",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "tsx watch src/server.ts",
+    "start": "node build/server.js",
+    "build": "tsup src --out-dir build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bcryptjs": "2.4.6",
+    "@types/node": "20.11.24",
+    "@typescript-eslint/eslint-plugin": "7.1.1",
+    "@typescript-eslint/parser": "7.1.1",
+    "eslint": "8.57.0",
+    "prisma": "5.10.2",
+    "tsup": "8.0.2",
+    "tsx": "4.7.1",
+    "typescript": "5.3.3"
+  },
+  "dependencies": {
+    "@prisma/client": "5.10.2",
+    "@types/express": "4.17.21",
+    "bcryptjs": "2.4.3",
+    "dotenv": "16.4.5",
+    "express": "4.18.3",
+    "zod": "3.22.4"
+  }
+}
