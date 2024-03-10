@@ -3,6 +3,7 @@ import { Router } from "express";
 import { appRoutes } from "./routes";
 import { ZodError } from "zod";
 import { env } from "./env";
+import "express-async-errors";
 
 export const app = express();
 
