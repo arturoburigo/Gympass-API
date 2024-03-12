@@ -3,7 +3,7 @@ import { UsersRepositoryInterface } from "@/repositories/users-repository";
 import { User } from "@prisma/client";
 import { hash } from "bcryptjs";
 
-interface RegisterUserCaseInterface {
+interface RegisterUserCaseRequest {
   email: string;
   password: string;
   name: string;
@@ -20,7 +20,7 @@ export class RegisterUseCase {
     email,
     name,
     password,
-  }: RegisterUserCaseInterface): Promise<RegisterUseCaseResponse> {
+  }: RegisterUserCaseRequest): Promise<RegisterUseCaseResponse> {
     const password_hash = await hash(password, 8);
 
     const userWithSameEmail = await this.usersRepository.findByEmail(email);

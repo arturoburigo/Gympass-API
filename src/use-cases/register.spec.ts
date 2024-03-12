@@ -3,12 +3,17 @@ import { RegisterUseCase } from "./register";
 import { InMemoryUsersRepository } from "@/repositories/in-memory/in-memory-users-repository";
 import { UserAlreadyExistsError } from "@/errors/user-already-exists-error";
 
-describe("Register Use Case", () => {
-  it("Should be able to register", async () => {
-    const usersRepository = new InMemoryUsersRepository();
-    const registerUseCase = new RegisterUseCase(usersRepository);
+let usersRepository: InMemoryUsersRepository;
+let sut: RegisterUseCase;
 
-    const { user } = await registerUseCase.execute({
+describe("Register Use Case", () => {
+  beforeEach(() => {
+    usersRepository = new InMemoryUsersRepository();
+    sut = new RegisterUseCase(usersRepository);
+  });
+
+  it("Should be able to register", async () => {
+    const { user } = await sut.execute({
       email: "johndoe@example.com",
       password: "123456",
       name: "John Doe",
@@ -18,10 +23,7 @@ describe("Register Use Case", () => {
   });
 
   it("Should hash user password upon registrations", async () => {
-    const usersRepository = new InMemoryUsersRepository();
-    const registerUseCase = new RegisterUseCase(usersRepository);
-
-    const { user } = await registerUseCase.execute({
+    const { user } = await sut.execute({
       email: "johndoe@example.com",
       password: "123456",
       name: "John Doe",
@@ -33,17 +35,14 @@ describe("Register Use Case", () => {
   });
 
   it("Should not be able to register same email twice", async () => {
-    const usersRepository = new InMemoryUsersRepository();
-    const registerUseCase = new RegisterUseCase(usersRepository);
-
-    await registerUseCase.execute({
+    await sut.execute({
       email: "johndoe@example.com",
       password: "123456",
       name: "John Doe",
     });
 
     await expect(() =>
-      registerUseCase.execute({
+      sut.execute({
         email: "johndoe@example.com",
         password: "123456",
         name: "John Doe",
