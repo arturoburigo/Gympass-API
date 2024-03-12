@@ -1,6 +1,5 @@
 import { InvalidCredentialsError } from "@/errors/invalid-credentials-erros";
-import { PrismaUsersRepository } from "@/repositories/prisma/prisma-users-repository";
-import { AuthenticateUseCase } from "@/use-cases/authenticate";
+import { makeAuthenticateUseCase } from "@/use-cases/factories/make-authenticate-use-case";
 import { Request, Response } from "express";
 import { z } from "zod";
 
@@ -13,8 +12,7 @@ export async function authenticate(req: Request, res: Response) {
   const { email, password } = registerBodySchema.parse(req.body);
 
   try {
-    const prismaUsersRepository = new PrismaUsersRepository();
-    const authenticateUseCase = new AuthenticateUseCase(prismaUsersRepository);
+    const authenticateUseCase = makeAuthenticateUseCase(); //Factory pattern
 
     await authenticateUseCase.execute({ email, password });
   } catch (err) {

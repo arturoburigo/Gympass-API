@@ -1,6 +1,5 @@
 import { UserAlreadyExistsError } from "@/errors/user-already-exists-error";
-import { PrismaUsersRepository } from "@/repositories/prisma/prisma-users-repository";
-import { RegisterUseCase } from "@/use-cases/register";
+import { makeRegisterUseCase } from "@/use-cases/factories/make-register-use-case";
 import { Request, Response } from "express";
 import { z } from "zod";
 
@@ -14,8 +13,7 @@ export async function register(req: Request, res: Response) {
   const { email, password, name } = registerBodySchema.parse(req.body);
 
   try {
-    const prismaUsersRepository = new PrismaUsersRepository();
-    const registerUseCase = new RegisterUseCase(prismaUsersRepository);
+    const registerUseCase = makeRegisterUseCase(); //Factory pattern
 
     await registerUseCase.execute({ email, password, name });
   } catch (err) {
