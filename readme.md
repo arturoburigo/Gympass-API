@@ -4,9 +4,10 @@ This document outlines the functional requirements, business rules, and non-func
 
 ## Functional Requirements (RFs)
 
-- Users must be able to register.
-- Users must be able to authenticate.
-- Users should be able to obtain the profile of a logged-in user.
+[x] Users must be able to register.
+[x] Users must be able to authenticate.
+[x] Users should be able to obtain the profile of a logged-in user.
+
 - Users should be able to obtain the number of check-ins they have made.
 - Users should be able to view their check-in history.
 - Users must be able to search for nearby gyms (up to 10km).
@@ -17,7 +18,8 @@ This document outlines the functional requirements, business rules, and non-func
 
 ## Business Rules (RNs)
 
-- Users cannot register with a duplicate email.
+[x] Users cannot register with a duplicate email.
+
 - Users cannot check in more than once on the same day.
 - Users cannot check in if they are not within 100m of the gym.
 - Check-ins must be validated within 20 minutes of being created.
@@ -26,7 +28,8 @@ This document outlines the functional requirements, business rules, and non-func
 
 ## Non-Functional Requirements (RNFs)
 
-- User passwords must be encrypted.
+[x]User passwords must be encrypted.
+
 - Application data must be persisted in a PostgreSQL database.
 - All lists of data must be paginated, with 20 items per page.
 - Users must be identified by a JWT (JSON Web Token).
