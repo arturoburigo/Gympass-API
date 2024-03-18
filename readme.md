@@ -8,12 +8,13 @@ This document outlines the functional requirements, business rules, and non-func
 [x] Users must be able to authenticate.
 [x] Users should be able to obtain the profile of a logged-in user.
 
-- Users should be able to obtain the number of check-ins they have made.
-- Users should be able to view their check-in history.
+[x]Users should be able to obtain the number of check-ins they have made.
+[x]Users should be able to view their check-in history.
+
 - Users must be able to search for gyms by name.
   [x] Users must be able to check into a gym.
 - User check-ins must be verifiable.
-- Gyms must be registerable.
+  [x] Gyms must be registerable.
 
 ## Business Rules (RNs)
 
