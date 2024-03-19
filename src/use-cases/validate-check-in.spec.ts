@@ -1,6 +1,7 @@
 import { InMemoryCheckInsRepository } from "@/repositories/in-memory/in-memory-check-ins-repository";
 import { ValidateCheckInUseCase } from "./validate-check-in";
 import { ResourceNotFoundError } from "@/errors/resource-not-found-error";
+import { LateCheckInValidationError } from "@/errors/late-check-in-validation-error";
 
 let checkInsRepository: InMemoryCheckInsRepository;
 let sut: ValidateCheckInUseCase;
@@ -10,11 +11,11 @@ describe("Validate Check-in Use Case", () => {
     checkInsRepository = new InMemoryCheckInsRepository();
     sut = new ValidateCheckInUseCase(checkInsRepository);
 
-    // vi.useFakeTimers()
+    jest.useFakeTimers();
   });
 
   afterEach(() => {
-    // vi.useRealTimers()
+    jest.useRealTimers();
   });
 
   it("should be able to validate the check-in", async () => {
@@ -37,5 +38,24 @@ describe("Validate Check-in Use Case", () => {
         checkInId: "inexistent-check-in-id",
       }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
+  });
+
+  it("should not be able to validate the check-in after 20 minutos of its creation", async () => {
+    jest.setSystemTime(new Date(2024, 0, 1, 8, 0));
+
+    const createdCheckIn = await checkInsRepository.create({
+      gym_id: "gym-01",
+      user_id: "user-01",
+    });
+
+    const twentyOneMinInMs = 1000 * 60 * 21;
+
+    jest.advanceTimersByTime(twentyOneMinInMs);
+
+    await expect(() =>
+      sut.execute({
+        checkInId: createdCheckIn.id,
+      }),
+    ).rejects.toBeInstanceOf(LateCheckInValidationError);
   });
 });
