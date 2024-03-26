@@ -1,6 +1,6 @@
 import { InvalidCredentialsError } from "@/errors/invalid-credentials-error";
 import { makeAuthenticateUseCase } from "@/use-cases/factories/make-authenticate-use-case";
-import { Request, Response, response } from "express";
+import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
 import { z } from "zod";
 

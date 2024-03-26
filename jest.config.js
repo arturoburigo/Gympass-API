@@ -1,8 +1,18 @@
-/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   preset: "ts-jest",
-  testEnvironment: "node",
+  testEnvironment: "./prisma/prisma-test-environment.ts",
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
+  },
+  transform: {
+    "^.+\\.tsx?$": [
+      "ts-jest",
+      {
+        // Configurações específicas do ts-jest aqui
+        tsconfig: {
+          esModuleInterop: true,
+        },
+      },
+    ],
   },
 };
