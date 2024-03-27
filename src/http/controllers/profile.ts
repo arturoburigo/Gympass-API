@@ -8,5 +8,10 @@ export async function profile(req: Request, res: Response) {
 
   const { user } = await getUserProfile.execute({ userId });
 
-  return res.json({ user });
+  return res.json({
+    user: {
+      ...user,
+      password_hash: undefined,
+    },
+  });
 }

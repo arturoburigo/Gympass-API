@@ -5,8 +5,8 @@ services:
     image: bitnami/postgresql
     container_name: api-gympass-pg
     environment:
-      POSTGRESQL_USERNAME: docker
-      POSTGRESQL_PASSWORD: docker
-      POSTGRESQL_DATABASE: apigympass
+      POSTGRES_PASSWORD: docker # Definindo a senha do usuário postgres
+      POSTGRES_USER: docker # Definindo o nome de usuário postgres (opcional)
+      POSTGRES_DB: apigympass # Definindo o nome do banco de dados
     ports:
-      - "5432:5432"
+      - "15432:5432" # Mapeamento da porta do contêiner para a porta do host
