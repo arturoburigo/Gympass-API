@@ -1,44 +1,54 @@
-import NodeEnvironment from "jest-environment-node";
-import { randomUUID } from "crypto";
-import { execSync } from "child_process";
-import { PrismaClient } from "@prisma/client";
+  import type { Config } from "@jest/types";
+  import { exec } from "node:child_process";
+  import * as dotenv from "dotenv";
+  import NodeEnvironment from "jest-environment-node";
+  import { Client } from "pg";
+  import * as util from "node:util";
+  import * as crypto from "node:crypto";
 
-const prisma = new PrismaClient();
+  dotenv.config({ path: ".env.testing" });
 
-function generateDatabaseURL(schema: string): string {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("Please provide a DATABASE_URL environment variable.");
+  const execSync = util.promisify(exec);
+
+  const prismaBinary = "./node_modules/.bin/prisma";
+
+  export default class PrismaTestEnvironment extends NodeEnvironment {
+    private schema: string;
+    private connectionString: string;
+
+    constructor(config: Config.ProjectConfig, ) {
+      super(config, {
+        console,
+        docblockPragmas,
+        testPath
+      });
+
+      const dbUser = process.env.DATABASE_USER;
+      const dbPass = process.env.DATABASE_PASS;
+      const dbHost = process.env.DATABASE_HOST;
+      const dbPort = process.env.DATABASE_PORT;
+      const dbName = process.env.DATABASE_NAME;
+
+      this.schema = `test_${crypto.randomUUID()}`;
+      this.connectionString = `postgresql://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}?schema=${this.schema}`;
+    }
+
+    async setup() {
+      process.env.DATABASE_URL = this.connectionString;
+      this.global.process.env.DATABASE_URL = this.connectionString;
+
+      await execSync(`${prismaBinary} migrate deploy`);
+
+      return super.setup();
+    }
+
+    async teardown() {
+      const client = new Client({
+        connectionString: this.connectionString,
+      });
+
+      await client.connect();
+      await client.query(`DROP SCHEMA IF EXISTS "${this.schema}" CASCADE`);
+      await client.end();
+    }
   }
-
-  const url = new URL(process.env.DATABASE_URL);
-  url.searchParams.set("schema", schema);
-  return url.toString();
-}
-
-export default class PrismaTestEnvironment extends NodeEnvironment {
-  private schema: string; // Declarando a propriedade 'schema'
-
-  constructor(config, context) {
-    super(config, context);
-    this.schema = randomUUID(); // Inicializando a propriedade 'schema'
-  }
-
-  async setup() {
-    console.log("Setting up Prisma Test Environment");
-    const databaseURL = generateDatabaseURL(this.schema);
-
-    process.env.DATABASE_URL = databaseURL;
-    execSync("npx prisma migrate deploy"); // Executando migrações do Prisma
-
-    await super.setup();
-  }
-
-  async teardown() {
-    console.log("Tearing down Prisma Test Environment");
-    await prisma.$executeRawUnsafe(`DROP SCHEMA IF EXISTS "${this.schema}" CASCADE`);
-    await prisma.$disconnect();
-
-    await super.teardown();
-  }
-}
-
