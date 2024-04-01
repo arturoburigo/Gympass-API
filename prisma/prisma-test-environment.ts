@@ -1,54 +1,44 @@
-  import type { Config } from "@jest/types";
-  import { exec } from "node:child_process";
-  import * as dotenv from "dotenv";
-  import NodeEnvironment from "jest-environment-node";
-  import { Client } from "pg";
-  import * as util from "node:util";
-  import * as crypto from "node:crypto";
+/* eslint-disable @typescript-eslint/no-var-requires */
+const NodeEnvironment = require("jest-environment-node");
+const { randomUUID } = require("node:crypto");
+const { execSync } = require("node:child_process");
+const { PrismaClient } = require("@prisma/client");
+require("dotenv/config");
 
-  dotenv.config({ path: ".env.testing" });
+const prisma = new PrismaClient();
 
-  const execSync = util.promisify(exec);
-
-  const prismaBinary = "./node_modules/.bin/prisma";
-
-  export default class PrismaTestEnvironment extends NodeEnvironment {
-    private schema: string;
-    private connectionString: string;
-
-    constructor(config: Config.ProjectConfig, ) {
-      super(config, {
-        console,
-        docblockPragmas,
-        testPath
-      });
-
-      const dbUser = process.env.DATABASE_USER;
-      const dbPass = process.env.DATABASE_PASS;
-      const dbHost = process.env.DATABASE_HOST;
-      const dbPort = process.env.DATABASE_PORT;
-      const dbName = process.env.DATABASE_NAME;
-
-      this.schema = `test_${crypto.randomUUID()}`;
-      this.connectionString = `postgresql://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}?schema=${this.schema}`;
-    }
-
-    async setup() {
-      process.env.DATABASE_URL = this.connectionString;
-      this.global.process.env.DATABASE_URL = this.connectionString;
-
-      await execSync(`${prismaBinary} migrate deploy`);
-
-      return super.setup();
-    }
-
-    async teardown() {
-      const client = new Client({
-        connectionString: this.connectionString,
-      });
-
-      await client.connect();
-      await client.query(`DROP SCHEMA IF EXISTS "${this.schema}" CASCADE`);
-      await client.end();
-    }
+function generateDatabaseURL(schema: string) {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("Please provide a DATABASE_URL environment variable.");
   }
+
+  const url = new URL(process.env.DATABASE_URL);
+  url.searchParams.set("schema", schema);
+
+  return url.toString();
+}
+
+class CustomEnvironment extends NodeEnvironment {
+  async setup() {
+    await super.setup();
+
+    const schema = randomUUID();
+    const databaseURL = generateDatabaseURL(schema);
+    
+    process.env.DATABASE_URL = databaseURL;
+
+    execSync("npx prisma migrate deploy");
+
+    this.global.teardown = async () => {
+      await prisma.$executeRawUnsafe(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`);
+      await prisma.$disconnect();
+    };
+  }
+
+  async teardown() {
+    await this.global.teardown();
+    await super.teardown();
+  }
+}
+
+module.exports = CustomEnvironment;

@@ -1,6 +1,5 @@
 module.exports = {
   preset: "ts-jest",
-  testEnvironment: "./prisma/prisma-test-environment.ts",
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
