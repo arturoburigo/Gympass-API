@@ -1,8 +1,8 @@
 import { app } from "@/app";
 import request from "supertest";
-import { Server } from "http"; // Importe o tipo Server
+import { Server } from "http"; 
 
-let server: Server; // Anote a variável server com o tipo Server
+let server: Server; 
 
 beforeAll((done) => {
   server = app.listen(4000, () => {
